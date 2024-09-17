@@ -15,13 +15,28 @@ WORKDIR /usr/local/app
 # This stage is used as the base for the client-dev and client-build stages,
 # since there are common steps needed for each.
 ###################################################
+
+# Vite
+# FROM base AS client-base
+# COPY client/package.json client/yarn.lock ./
+# RUN --mount=type=cache,id=yarn,target=/usr/local/share/.cache/yarn \
+#     yarn install
+# COPY client/.eslintrc.cjs client/index.html client/vite.config.js ./
+# COPY client/public ./public
+# COPY client/src ./src
+
+# NextJS
 FROM base AS client-base
+
+# Copy package.json and yarn.lock for dependencies
 COPY client/package.json client/yarn.lock ./
 RUN --mount=type=cache,id=yarn,target=/usr/local/share/.cache/yarn \
     yarn install
-COPY client/.eslintrc.cjs client/index.html client/vite.config.js ./
-COPY client/public ./public
+
+# Copy Next.js-specific files and directories from the `src` directory
+COPY client/components.json client/next-env.d.ts client/next.config.mjs client/postcss.config.mjs client/tailwind.config.ts client/tsconfig.json ./
 COPY client/src ./src
+
 
 ###################################################
 # Stage: client-dev
