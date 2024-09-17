@@ -1,81 +1,58 @@
-// import PropTypes from "prop-types";
-// import Container from "react-bootstrap/Container";
-// import Row from "react-bootstrap/Row";
-// import Col from "react-bootstrap/Col";
-// import Button from "react-bootstrap/Button";
-// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// import { faTrash } from "@fortawesome/free-solid-svg-icons/faTrash";
-// import faCheckSquare from "@fortawesome/fontawesome-free-regular/faCheckSquare";
-// import faSquare from "@fortawesome/fontawesome-free-regular/faSquare";
-// import "./ItemDisplay.scss";
+import { Trash, Trash2Icon } from "lucide-react";
+import { Checkbox } from "./ui/checkbox";
+import { cn } from "@/lib/utils";
 
-// export function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
-//   const toggleCompletion = () => {
-//     fetch(`/api/items/${item.id}`, {
-//       method: "PUT",
-//       body: JSON.stringify({
-//         name: item.name,
-//         completed: !item.completed,
-//       }),
-//       headers: { "Content-Type": "application/json" },
-//     })
-//       .then((r) => r.json())
-//       .then(onItemUpdate);
-//   };
+interface Item {
+  id: number;
+  name: string;
+  completed: boolean;
+}
 
-//   const removeItem = () => {
-//     fetch(`/api/items/${item.id}`, { method: "DELETE" }).then(() =>
-//       onItemRemoval(item)
-//     );
-//   };
+interface Props {
+  item: Item;
+  onItemUpdate: (item: Item) => void;
+  onItemRemoval: ((...args: any[]) => any) | null | undefined;
+}
 
-//   return (
-//     <Container fluid className={`item ${item.completed && "completed"}`}>
-//       <Row>
-//         <Col xs={2} className="text-center">
-//           <Button
-//             className="toggles"
-//             size="sm"
-//             variant="link"
-//             onClick={toggleCompletion}
-//             aria-label={
-//               item.completed
-//                 ? "Mark item as incomplete"
-//                 : "Mark item as complete"
-//             }
-//           >
-//             <FontAwesomeIcon icon={item.completed ? faCheckSquare : faSquare} />
-//             <i
-//               className={`far ${
-//                 item.completed ? "fa-check-square" : "fa-square"
-//               }`}
-//             />
-//           </Button>
-//         </Col>
-//         <Col xs={8} className="name">
-//           {item.name}
-//         </Col>
-//         <Col xs={2} className="text-center remove">
-//           <Button
-//             size="sm"
-//             variant="link"
-//             onClick={removeItem}
-//             aria-label="Remove Item"
-//           >
-//             <FontAwesomeIcon icon={faTrash} className="text-danger" />
-//           </Button>
-//         </Col>
-//       </Row>
-//     </Container>
-//   );
-// }
+export function ItemDisplay({ item, onItemUpdate, onItemRemoval }: Props) {
+  const toggleCompletion = () => {
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/items/${item.id}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        name: item.name,
+        completed: !item.completed,
+      }),
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((r) => r.json())
+      .then(onItemUpdate);
+  };
 
-// ItemDisplay.propTypes = {
-//   item: PropTypes.shape({
-//     id: PropTypes.string,
-//     name: PropTypes.string,
-//     completed: PropTypes.bool,
-//   }),
-//   onItemUpdate: PropTypes.func,
-//   onItemRemoval: PropTypes.func,
-// };
+  const removeItem = () => {
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/items/${item.id}`, {
+      method: "DELETE",
+    })
+      .then(() => {
+        if (onItemRemoval) {
+          onItemRemoval(item); // Call onItemRemoval only if it is defined
+        }
+      })
+      .catch((error) => {
+        console.error("Error removing item:", error);
+      });
+  };
+
+  return (
+    <div className="w-[640px] flex space-x-2 items-center justify-between gap-2">
+      <div className="flex items-start w-fit">
+        <Checkbox onClick={toggleCompletion} className="mt-1 mx-2.5" />
+        <p className={cn(item.completed ? `line-through italic` : ``, "")}>
+          {item.name}
+        </p>
+      </div>
+      <div className="h-8 w-8 rounded-full hover:bg-primary/5 duration-300 flex items-center justify-center">
+        <Trash2Icon onClick={removeItem} className="w-4 h-4 cursor-pointer" />
+      </div>
+    </div>
+  );
+}

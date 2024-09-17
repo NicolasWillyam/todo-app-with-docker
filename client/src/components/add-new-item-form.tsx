@@ -25,26 +25,29 @@ const FormSchema = z.object({
 });
 
 interface AddItemFormProps {
-  onNewItem: (item: { id: number; name: string }) => void;
+  onNewItem: (item: { id: number; name: string; completed: boolean }) => void;
 }
 
 export function AddItemForm({ onNewItem }: AddItemFormProps) {
   const [newItem, setNewItem] = useState<string>("");
   const [submitting, setSubmitting] = useState<boolean>(false);
-
-  const submitNewItem = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const submitNewItem = (data: z.infer<typeof FormSchema>) => {
     setSubmitting(true);
-
     const options = {
       method: "POST",
-      body: JSON.stringify({ name: newItem }),
+      body: JSON.stringify({ name: data.todo }),
       headers: { "Content-Type": "application/json" },
     };
 
-    fetch("/api/items", options)
+    toast({
+      title: "Add todo success!",
+      description: <div className="">Todo: {data.todo}</div>,
+    });
+
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/items`, options)
       .then((r) => r.json())
       .then((item) => {
+        form.reset();
         onNewItem(item);
         setSubmitting(false);
         setNewItem("");
@@ -58,21 +61,10 @@ export function AddItemForm({ onNewItem }: AddItemFormProps) {
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
-  }
-
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(submitNewItem)}
         className="w-[640px] space-y-6 flex items-center"
       >
         <FormField
@@ -84,7 +76,7 @@ export function AddItemForm({ onNewItem }: AddItemFormProps) {
                 <FormControl>
                   <Input placeholder="Add todo list" {...field} />
                 </FormControl>
-                <Button type="submit" disabled={!newItem.length || submitting}>
+                <Button type="submit" disabled={submitting}>
                   {submitting ? "Adding..." : "Add Item"}
                 </Button>
               </div>

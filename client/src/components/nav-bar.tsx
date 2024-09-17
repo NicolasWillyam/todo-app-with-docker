@@ -5,8 +5,8 @@ import Logo from "./logo";
 
 const NavBar = () => {
   return (
-    <div className="fixed top-0 w-full flex justify-center">
-      <div className="container w-full h-20 flex justify-between items-center">
+    <div className="fixed top-0 w-full flex justify-center bg-background shadow-sm">
+      <div className="container w-full h-16 flex justify-between items-center">
         <Logo />
         <ModeToggle />
       </div>

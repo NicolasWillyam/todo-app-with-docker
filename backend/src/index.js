@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const db = require('./persistence');
 const getGreeting = require('./routes/getGreeting');
@@ -7,6 +8,7 @@ const addItem = require('./routes/addItem');
 const updateItem = require('./routes/updateItem');
 const deleteItem = require('./routes/deleteItem');
 
+app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname + '/static'));
 

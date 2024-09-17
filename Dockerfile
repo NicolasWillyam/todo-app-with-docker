@@ -34,7 +34,7 @@ RUN --mount=type=cache,id=yarn,target=/usr/local/share/.cache/yarn \
     yarn install
 
 # Copy Next.js-specific files and directories from the `src` directory
-COPY client/components.json client/next-env.d.ts client/next.config.mjs client/postcss.config.mjs client/tailwind.config.ts client/tsconfig.json ./
+COPY client/.env client/components.json client/next-env.d.ts client/next.config.mjs client/postcss.config.mjs client/tailwind.config.ts client/tsconfig.json ./
 COPY client/src ./src
 
 
